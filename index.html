@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Registro Tecnoparque</title>
+    <link rel="icon" href="img/sena.png" type="image/x-icon">
+
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!--  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Concert+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <!--  -->
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!--  -->
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="poppins-regular">
+
+    <div class='ripple-background'>
+        <div class='circle xxlarge shade1'></div>
+        <div class='circle xlarge shade2'></div>
+        <div class='circle large shade3'></div>
+        <div class='circle mediun shade4'></div>
+        <div class='circle small shade5'></div>
+    </div>
+
+    <!--  <div class="three-body">
+        <div class="three-body__dot"></div>
+        <div class="three-body__dot"></div>
+        <div class="three-body__dot"></div>
+    </div> -->
+
+    <!-- <div class="container-fluid px-4 py-5 my-2 text-center">
+        <div class="lc-block mb-2">
+            <div editable="rich">
+                <h2 class="display-2 fw-bold">Formulario <span class="text-success">Tecnoparque</span></h2>
+            </div>
+        </div>
+    </div> -->
+
+
+    <div class="container mt-5 mb-5 form-container">
+        <div class="d-flex justify-content-between">
+            <h2 class="display-2 fw-bold">
+                Registro <span class="text-color">Tecnoparque</span>
+            </h2>
+            <img src="img/tecnoparque-green-gray.png" class="w-auto" height="40" alt="">
+        </div>
+        <p class="bg-light rounded p-4">En el corazón de todo, el Programa SENNOVA del Centro de Gestión y
+            Desarrollo Sostenible Surcolombiano, a través de sus estrategias de Semilleros de investigación y
+            Tecnoparque Nodo Pitalito, impulsa el progreso tecnológico de la región.</p>
+        <div class="d-flex justify-content-end mb-3">
+            <button class="btn btn-success" onclick="generarZip()">Descargar ZIP</button>
+        </div>
+
+        <form id="formulario">
+            <h2 class="mb-4 fw-bold">Datos personales:</h2>
+            <div class="row bg-light p-4 rounded">
+                <div class="col-lg-6 form-section">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nombre" class="form-label fw-semibold">Nombres:</label>
+                                <input type="text" class="form-control form-input" id="nombre" data-field="nombre"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nombre" class="form-label fw-semibold">Apellidos:</label>
+                                <input type="text" class="form-control form-input" id="apellido" data-field="apellido"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="tipo" class="form-label fw-semibold">Tipo de Identificación:</label>
+                                <select name="tipo" id="tipo" class="form-select form-input"
+                                    data-field="Tipo Identificación" required>
+                                    <option value="Cédula de Ciudadanía">Cédula de Ciudadanía</option>
+                                    <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id" class="form-label fw-semibold">Número de Identificación:</label>
+                                <input type="text" class="form-control form-input" id="id" data-field="id" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nombre" class="form-label fw-semibold">Número de Télefono:</label>
+                                <input type="text" class="form-control form-input" id="telefono" data-field="Télefono"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="fecha" class="form-label fw-semibold">Fecha Nacimiento:</label>
+                                <input type="date" name="fecha" id="fecha" class="form-control form-input"
+                                    data-field="Fecha Nacimiento" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="nombre" class="form-label fw-semibold">Correo:</label>
+                            <input type="text" class="form-control form-input" id="correo" data-field="Correo" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 form-section">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="direccion" class="form-label fw-semibold">Dirección/Ciudad:</label>
+                                <input type="text" class="form-control form-input" id="direccion" data-field="Dirección"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="ubicacion" class="form-label fw-semibold">Ubicación:</label>
+                                <select name="ubicacion" id="ubicacion" class="form-select form-input"
+                                    data-field="Ubicación" required>
+                                    <option value="Zona Urbana">Zona Urbana</option>
+                                    <option value="Zona Rural">Zona Rural</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="genero" class="form-label fw-semibold">Género:</label>
+                        <select name="genero" id="genero" class="form-select form-input" data-field="Genero">
+                            <option value="Hombre">Hombre</option>
+                            <option value="Mujer">Mujer</option>
+                            <option value="Prefiero no Decirlo">Prefiero no Decirlo</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="ocupacion" class="form-label fw-semibold">Ocupación:</label>
+                        <select name="ocupacion" id="ocupacion" class="form-select form-input" data-field="Ocupación"
+                            required>
+                            <option value="Aprendiz">Aprendiz</option>
+                            <option value="Docente">Docente</option>
+                            <option value="Profesional">Profesional</option>
+                            <option value="Idependiente">Idependiente</option>
+                            <option value="Estudiante">Estudiante</option>
+                            <option value="Emprendedor">Emprendedor</option>
+                            <option value="Empresario">Empresario</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="poblacion" class="form-label fw-semibold">Caracterización de Poblacion:</label>
+                        <select name="poblacion" id="poblacion" class="form-select form-input" data-field="Población"
+                            required>
+                            <option value="Ninguna">Ninguna</option>
+                            <option value="Abandono o Despojo Forzado de Tierras">Abandono o Despojo Forzado de
+                                Tierras
+                            </option>
+                            <option value="Actos Terroristas/Atentados/Combates/Enfrentamientos/Hostigamientos">
+                                Actos
+                                Terroristas/Atentados/Combates/Enfrentamientos/Hostigamientos</option>
+                            <option value="Adolencentes Desvinculados de Grupos Armados Organizados">Adolencentes
+                                Desvinculados de Grupos Armados Organizados</option>
+                            <option value="Adolencentes en Conflictos con Ley Penal">Adolencentes en Conflictos con
+                                Ley
+                                Penal</option>
+                            <option value="Adolencente Trabajador">Adolencente Trabajador</option>
+                            <option value="Afrocolombiano">Afrocolombiano</option>
+                            <option value="Afrocolombiano desplazado por la violencia">Afrocolombiano desplazado por
+                                la
+                                violencia</option>
+                            <option value="Afrocolombiano desplazado por la violencia cabeza de familia">
+                                Afrocolombiano
+                                desplazado por la violencia cabeza de familia</option>
+                            <option value="Amenaza">Amenaza</option>
+                            <option value="Artesanos">Artesanos</option>
+                            <option
+                                value="Delitos contra la libertad y la integridad sexual en desarrollo del conflicto armado">
+                                Delitos contra la libertad y la integridad sexual en desarrollo del conflicto armado
+                            </option>
+                            <option value="Desaparición Forzada">Desaparición Forzada</option>
+                            <option value="Desplazados discapacitados">Desplazados discapacitados</option>
+                            <option value="Desplazados por fenómenos naturales">Desplazados por fenómenos naturales
+                            </option>
+                            <option value="Desplazados por fenómenos naturales cabeza de familia">Desplazados por
+                                fenómenos
+                                naturales cabeza de familia</option>
+                            <option value="Desplazados por la violencia">Desplazados por la violencia</option>
+                            <option value="Desplazados por la violencia cabeza de familia">Desplazados por la
+                                violencia
+                                cabeza de familia</option>
+                            <option value="Discapacidad intelectual">Discapacidad intelectual</option>
+                            <option value="Discapacidad Auditiva">Discapacidad Auditiva</option>
+                            <option value="Discapacidad física">Discapacidad física</option>
+                            <option value="Discapacidad Visual">Discapacidad Visual</option>
+                            <option value="Discapacidad psicosocial">Discapacidad psicosocial</option>
+                            <option value="Discapacidad Multiple">Discapacidad Multiple</option>
+                            <option value="Sordoceguera">Sordoceguera</option>
+                            <option value="Emprendedores">Emprendedores</option>
+                            <option value="Gitanos (ROM)">Gitanos (ROM)</option>
+                            <option value="Herido">Herido</option>
+                            <option value="Homicidio/Masacre">Homicidio/Masacre</option>
+                            <option value="Indígenas">Indígenas</option>
+                            <option value="Indígenas desplazados por a violencia">Indígenas desplazados por a
+                                violencia
+                            </option>
+                            <option value="Indígenas desplazados por a violencia cabeza de familia">Indígenas
+                                desplazados
+                                por a violencia cabeza de familia</option>
+                            <option value="INPEC">INPEC</option>
+                            <option value="Jóvenes Vulnerables">Jóvenes Vulnerables</option>
+                            <option value="Microempresas">Microempresas</option>
+                            <option
+                                value="Minas Antipersonal, munición sin explotar, y artefacto explosivo improvisado.">
+                                Minas Antipersonal, munición sin explotar, y artefacto explosivo improvisado.
+                            </option>
+                            <option value="Mujer cabeza de familia">Mujer cabeza de familia</option>
+                            <option value="Negritudes">Negritudes</option>
+                            <option value="Palenqueros">Palenqueros</option>
+                            <option value="Personas en proceso de reintegración">Personas en proceso de
+                                reintegración
+                            </option>
+                            <option value="Población en Riesgo">Población en Riesgo</option>
+                            <option value="Población víctima de la violencia en zonas de conflicto armado">Población
+                                víctima
+                                de la violencia en zonas de conflicto armado</option>
+                            <option value="Población víctima de la violencia con discapacidad">Población víctima de
+                                la
+                                violencia con discapacidad</option>
+                            <option value="Población víctima de la violencia en zonas de conflicto armado">Población
+                                víctima
+                                de la violencia en zonas de conflicto armado</option>
+                            <option value="Víctimas de Desplazamiento Forzado">Víctimas de Desplazamiento Forzado
+                            </option>
+                            <option value="Víctimas de Trata de Personas">Víctimas de Trata de Personas</option>
+                            <option value="Víctimas de violencia">Víctimas de violencia</option>
+                            <option value="Víctimas de violencia, desmovilización y reintegración de la población">
+                                Víctimas
+                                de violencia, desmovilización y reintegración de la población</option>
+                            <option value="Víctimas de violencia en zonas de conflicto armado">Víctimas de violencia
+                                en
+                                zonas de conflicto armado</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="my-4 fw-bold">Captura de Fotos de la Cédula:</h2>
+            <div class="row">
+                <div class="col-lg-6 form-section">
+                    <h6 class="text-center mb-3">Foto del Frente de la Cédula:</h6>
+                    <div class="form-group text-center position-relative video-container">
+                        <video id="videoFrente" autoplay class="position-relative rounded-4"></video>
+                        <canvas id="canvasFrente" style="display:none;"></canvas>
+                        <img id="fotoFrente" class="rounded-4 h-full" style="display:none;" alt="Foto del Frente">
+                        <img id="overlayFrente" src="img/camara.png" class="overlay">
+
+                    </div>
+                    <div class="text-center mt-2">
+                        <button type="button" class="btn btn-success" onclick="capturarFrente()">Capturar
+                            Frente</button>
+                    </div>
+                </div>
+                <div class="col-lg-6 form-section">
+                    <h6 class="text-center mb-3">Foto del Reverso de la Cédula:</h6>
+                    <div class="form-group text-center position-relative video-container">
+                        <video id="videoReverso" autoplay class="position-relative rounded-4"></video>
+                        <canvas id="canvasReverso" style="display:none;"></canvas>
+                        <img id="fotoReverso" class="rounded-4 h-full" style="display:none;" alt="Foto del Reverso">
+                        <img id="overlayReverso" src="img/camara-2.png" class="overlay">
+                    </div>
+                    <div class="text-center mt-2">
+                        <button type="button" class="btn btn-success" onclick="capturarReverso()">Capturar
+                            Reverso</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <!-- <button type="button" class="btn btn-danger me-2" onclick="limpiarRegistros()">Limpiar
+                    Registros</button> -->
+                <button type="submit" class="btn btn-success" onclick="guardarRegistro()">Guardar Registro</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade border-0" id="incompleteFieldsModal" tabindex="-1"
+        aria-labelledby="incompleteFieldsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="incompleteFieldsModalLabel">Campos incompletos</h5>
+                    <button type="button" class="btn-close text-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-icon">
+                        <i class="fa fa-exclamation-circle text-danger"></i>
+                    </div>
+                    Por favor, complete todos los campos y capture ambas imágenes.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade border-0" id="saveFieldsModal" tabindex="-1" aria-labelledby="saveFieldsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="incompleteFieldsModalLabel">Datos guardados</h5>
+                    <button type="button" class="btn-close text-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-icon">
+                        <i class="fa fa-exclamation-circle text-success"></i>
+                    </div>
+                    ¡Datos guardados con exito!.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        function cargarRegistros() {
+            const registros = localStorage.getItem('registros');
+            return registros ? JSON.parse(registros) : [];
+        }
+
+        function guardarRegistros(registros) {
+            localStorage.setItem('registros', JSON.stringify(registros));
+        }
+
+        let registros = cargarRegistros();
+
+        const videoFrente = document.getElementById('videoFrente');
+        const videoReverso = document.getElementById('videoReverso');
+        const canvasFrente = document.getElementById('canvasFrente');
+        const canvasReverso = document.getElementById('canvasReverso');
+        const fotoFrente = document.getElementById('fotoFrente');
+        const fotoReverso = document.getElementById('fotoReverso');
+        const overlayFrente = document.getElementById('overlayFrente');
+        const overlayReverso = document.getElementById('overlayReverso');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                videoFrente.srcObject = stream;
+                videoReverso.srcObject = stream;
+            })
+            .catch(err => console.error("Error al acceder a la cámara: ", err));
+
+        function capturarFrente() {
+            const context = canvasFrente.getContext('2d');
+            context.drawImage(videoFrente, 0, 0, canvasFrente.width, canvasFrente.height);
+            const dataUrl = canvasFrente.toDataURL('image/png');
+            fotoFrente.src = dataUrl;
+            fotoFrente.style.display = 'block';
+            videoFrente.style.display = 'none';
+            overlayFrente.style.display = 'none';
+        }
+
+        function capturarReverso() {
+            const context = canvasReverso.getContext('2d');
+            context.drawImage(videoReverso, 0, 0, canvasReverso.width, canvasReverso.height);
+            const dataUrl = canvasReverso.toDataURL('image/png');
+            fotoReverso.src = dataUrl;
+            fotoReverso.style.display = 'block';
+            videoReverso.style.display = 'none';
+            overlayReverso.style.display = 'none';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { day: 'numeric', month: 'numeric', year: 'numeric' };
+            return date.toLocaleDateString('es-ES', options);
+        }
+
+        function guardarRegistro() {
+            const formInputs = document.querySelectorAll('.form-input');
+            const registro = {};
+
+            formInputs.forEach(input => {
+                const field = input.getAttribute('data-field');
+                if (field == 'Fecha Nacimiento') {
+                    registro[field] = formatDate(input.value);
+                } else {
+                    registro[field] = input.value;
+                }
+            });
+
+            const fotoFrenteSrc = fotoFrente.src;
+            const fotoReversoSrc = fotoReverso.src;
+            if (Object.keys(registro).length && fotoFrenteSrc && fotoReversoSrc) {
+                registro.fotoFrente = fotoFrenteSrc;
+                registro.fotoReverso = fotoReversoSrc;
+                registros.push(registro);
+                guardarRegistros(registros);
+                // alert('Registro guardado');
+                document.getElementById('formulario').reset();
+                fotoFrente.style.display = 'none';
+                fotoReverso.style.display = 'none';
+
+                const modal = new bootstrap.Modal(document.getElementById('saveFieldsModal'));
+                modal.show();
+            } else {
+                // alert('Por favor, complete todos los campos y capture ambas imágenes.');
+                const modal = new bootstrap.Modal(document.getElementById('incompleteFieldsModal'));
+                modal.show();
+            }
+        }
+
+        function limpiarRegistros() {
+            localStorage.removeItem('registros');
+            registros = [];
+            alert('Registros eliminados');
+        }
+
+        async function generarZip() {
+            const { jsPDF } = window.jspdf;
+            const zip = new JSZip();
+
+            // Generar Excel
+            const registrosExcel = registros.map(registro => {
+                const { fotoFrente, fotoReverso, ...resto } = registro;
+                return resto;
+            });
+
+            const ws = XLSX.utils.json_to_sheet(registrosExcel);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Registros');
+            const excelBlob = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            zip.file('Registros.xlsx', excelBlob);
+
+            // Generar PDFs
+            for (const registro of registros) {
+                const pdf = new jsPDF();
+                const imgWidth = 120;
+                const imgHeight = 100;
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                // Calcular la posición horizontal para centrar la imagen
+                const xOffset = (pdfWidth - imgWidth) / 2;
+
+                // Añadir imagen del frente en la parte superior
+                const imgDataFrente = registro.fotoFrente.split(',')[1];
+                pdf.addImage(imgDataFrente, 'PNG', xOffset, 10, imgWidth, imgHeight);
+
+                // Añadir imagen del reverso en la parte inferior
+                const imgDataReverso = registro.fotoReverso.split(',')[1];
+                pdf.addImage(imgDataReverso, 'PNG', xOffset, pdfHeight - imgHeight - 10, imgWidth, imgHeight);
+
+                const pdfBlob = pdf.output('blob');
+                zip.file(`${registro.id}_Cedula.pdf`, pdfBlob);
+            }
+
+            // Generar y descargar ZIP
+            zip.generateAsync({ type: 'blob' }).then(function (content) {
+                saveAs(content, 'Registros.zip');
+            });
+        }
+    </script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <!-- Bootstrap -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
