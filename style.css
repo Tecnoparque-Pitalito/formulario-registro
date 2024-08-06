@@ -243,7 +243,7 @@ body {
 
 .video-container {
     position: relative;
-    width: 100%;
+    width: 100%; 
 }
 
 .video-container video,
@@ -257,6 +257,9 @@ img {
 }
 
 .overlay {
+    padding-top: 10px;
+    padding-left: 26px !important;
+    padding-right: 26px !important;
     position: absolute;
     top: 0;
     left: 0;

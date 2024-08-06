@@ -77,7 +77,7 @@
                             <div class="form-group">
                                 <label for="nombre" class="form-label fw-semibold">Nombres:</label>
                                 <input type="text" class="form-control form-input" id="nombre" data-field="nombre"
-                                    required>
+                                    required="true">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -102,7 +102,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="id" class="form-label fw-semibold">Número de Identificación:</label>
-                                <input type="text" class="form-control form-input" id="id" data-field="id" required>
+                                <input type="number" class="form-control form-input" id="id" data-field="id" required>
                             </div>
                         </div>
                     </div>
@@ -110,7 +110,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="nombre" class="form-label fw-semibold">Número de Télefono:</label>
-                                <input type="text" class="form-control form-input" id="telefono" data-field="Télefono"
+                                <input type="number" class="form-control form-input" id="telefono" data-field="Télefono"
                                     required>
                             </div>
                         </div>
@@ -125,7 +125,8 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="nombre" class="form-label fw-semibold">Correo:</label>
-                            <input type="text" class="form-control form-input" id="correo" data-field="Correo" required>
+                            <input type="email" class="form-control form-input" id="correo" data-field="Correo"
+                                required>
                         </div>
                     </div>
                 </div>
@@ -302,7 +303,7 @@
             <div class="text-center mt-5">
                 <!-- <button type="button" class="btn btn-danger me-2" onclick="limpiarRegistros()">Limpiar
                     Registros</button> -->
-                <button type="submit" class="btn btn-success" onclick="guardarRegistro()">Guardar Registro</button>
+                <button type="submit" class="btn btn-success" onclick="guardarRegistro(event)">Guardar Registro</button>
             </div>
         </form>
     </div>
@@ -321,7 +322,7 @@
                     <div class="modal-icon">
                         <i class="fa fa-exclamation-circle text-danger"></i>
                     </div>
-                    Por favor, complete todos los campos y capture ambas imágenes.
+                    Por favor, capture ambas imágenes.
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
@@ -384,6 +385,9 @@
             .catch(err => console.error("Error al acceder a la cámara: ", err));
 
         function capturarFrente() {
+            canvasFrente.width = videoFrente.videoWidth;
+            canvasFrente.height = videoFrente.videoHeight;
+
             const context = canvasFrente.getContext('2d');
             context.drawImage(videoFrente, 0, 0, canvasFrente.width, canvasFrente.height);
             const dataUrl = canvasFrente.toDataURL('image/png');
@@ -394,6 +398,9 @@
         }
 
         function capturarReverso() {
+            canvasReverso.width = videoReverso.videoWidth;
+            canvasReverso.height = videoReverso.videoHeight;
+
             const context = canvasReverso.getContext('2d');
             context.drawImage(videoReverso, 0, 0, canvasReverso.width, canvasReverso.height);
             const dataUrl = canvasReverso.toDataURL('image/png');
@@ -409,7 +416,10 @@
             return date.toLocaleDateString('es-ES', options);
         }
 
-        function guardarRegistro() {
+        function guardarRegistro(event) {
+
+            const formulario = document.getElementById('formulario');
+
             const formInputs = document.querySelectorAll('.form-input');
             const registro = {};
 
@@ -422,22 +432,40 @@
                 }
             });
 
-            const fotoFrenteSrc = fotoFrente.src;
-            const fotoReversoSrc = fotoReverso.src;
-            if (Object.keys(registro).length && fotoFrenteSrc && fotoReversoSrc) {
+            let fotoFrenteSrc = fotoFrente.src;
+            let fotoReversoSrc = fotoReverso.src;
+
+            // console.log('front: ', fotoFrenteSrc);
+            // console.log('reverso: ', fotoReversoSrc);
+
+            // console.log('FORMULARIO:', formulario.checkValidity());
+
+            if (formulario.checkValidity() && fotoFrenteSrc && fotoReversoSrc) {
+                event.preventDefault();
+
                 registro.fotoFrente = fotoFrenteSrc;
                 registro.fotoReverso = fotoReversoSrc;
                 registros.push(registro);
                 guardarRegistros(registros);
                 // alert('Registro guardado');
                 document.getElementById('formulario').reset();
+                fotoFrente.removeAttribute('src');
+                fotoReverso.removeAttribute('src');
+
                 fotoFrente.style.display = 'none';
                 fotoReverso.style.display = 'none';
 
+                videoFrente.style.display = 'block';
+                overlayReverso.style.display = 'block';
+
+                videoReverso.style.display = 'block';
+                overlayFrente.style.display = 'block';
+
                 const modal = new bootstrap.Modal(document.getElementById('saveFieldsModal'));
                 modal.show();
-            } else {
-                // alert('Por favor, complete todos los campos y capture ambas imágenes.');
+            } else if (formulario.checkValidity()) {
+                event.preventDefault();
+
                 const modal = new bootstrap.Modal(document.getElementById('incompleteFieldsModal'));
                 modal.show();
             }
@@ -448,6 +476,42 @@
             registros = [];
             alert('Registros eliminados');
         }
+
+        function recortarImagen(dataUrl, cropX, cropY, cropWidth, cropHeight, callback) {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+
+                canvas.width = cropWidth;
+                canvas.height = cropHeight;
+
+                context.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+                callback(canvas.toDataURL('image/png'));
+            };
+            img.src = dataUrl;
+        }
+
+        function addBordersToCells(ws) {
+            // Define un estilo con bordes
+            const borderStyle = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+            };
+
+            // Iterar sobre las celdas y aplicar el estilo de borde
+            for (const cellAddress of Object.keys(ws)) {
+                if (ws[cellAddress].s) {
+                    ws[cellAddress].s.border = borderStyle;
+                } else {
+                    ws[cellAddress].s = { border: borderStyle };
+                }
+            }
+        }
+
 
         async function generarZip() {
             const { jsPDF } = window.jspdf;
@@ -460,30 +524,101 @@
             });
 
             const ws = XLSX.utils.json_to_sheet(registrosExcel);
+
+            // Configurar el ancho uniforme para todas las columnas
+            const columnCount = ws['!ref'].split(':')[1].replace(/[0-9]/g, ''); // Obtener la última columna
+            const columnWidth = 130; // Ancho en píxeles
+
+            ws['!cols'] = Array.from({ length: columnCount.charCodeAt(0) - 'A'.charCodeAt(0) + 1 }, () => ({ wpx: columnWidth }));
+
+            // Configurar el alto uniforme para todas las filas
+            const rowCount = registrosExcel.length + 1; // +1 para la fila de encabezado
+            const rowHeight = 24; // Alto en píxeles
+
+            ws['!rows'] = Array.from({ length: rowCount }, () => ({ hpx: rowHeight }));
+
+            // Añadir bordes a las celdas
+            const addBorders = (cell) => {
+                if (!cell.s) cell.s = {};
+                cell.s.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            };
+
+            for (const cellAddress in ws) {
+                if (cellAddress[0] === '!') continue;
+                addBorders(ws[cellAddress]);
+            }
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Registros');
             const excelBlob = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             zip.file('Registros.xlsx', excelBlob);
 
+            // Función para recortar imágenes usando un canvas
+            function recortarImagen(dataUrl, cropSize, callback) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+
+                    // Calcular las dimensiones del recorte
+                    const cropWidth = img.width - 2 * cropSize;
+                    const cropHeight = img.height - 2 * cropSize;
+                    canvas.width = cropWidth;
+                    canvas.height = cropHeight;
+
+                    // Dibujar la imagen recortada en el canvas
+                    context.drawImage(img, cropSize, cropSize, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+                    // Llamar al callback con el Data URL de la imagen recortada
+                    callback(canvas.toDataURL('image/png'));
+                };
+                img.src = dataUrl;
+            }
+
+            // Tamaño del recorte en píxeles
+            const cropSize = 75; // Tamaño del recorte en píxeles
+
             // Generar PDFs
             for (const registro of registros) {
                 const pdf = new jsPDF();
-                const imgWidth = 120;
-                const imgHeight = 100;
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                // Definir dimensiones realistas para las imágenes (altura y ancho)
+                const imgHeight = 120; // Ajusta la altura según sea necesario
+                const imgWidth = imgHeight * 1.5; // Proporción 1.5:1
 
                 // Calcular la posición horizontal para centrar la imagen
                 const xOffset = (pdfWidth - imgWidth) / 2;
 
-                // Añadir imagen del frente en la parte superior
+                // Calcular la posición vertical para que las imágenes no estén demasiado separadas
+                const yOffsetTop = 20; // Espacio superior desde el borde
+                const yOffsetBottom = pdfHeight - imgHeight - 20; // Espacio inferior desde el borde
+
+                // Recortar y añadir imagen del frente
                 const imgDataFrente = registro.fotoFrente.split(',')[1];
-                pdf.addImage(imgDataFrente, 'PNG', xOffset, 10, imgWidth, imgHeight);
+                await new Promise(resolve => {
+                    recortarImagen(`data:image/png;base64,${imgDataFrente}`, cropSize, croppedImgDataFrente => {
+                        pdf.addImage(croppedImgDataFrente, 'PNG', xOffset, yOffsetTop, imgWidth, imgHeight, undefined, 'FAST');
+                        resolve();
+                    });
+                });
 
-                // Añadir imagen del reverso en la parte inferior
+                // Recortar y añadir imagen del reverso
                 const imgDataReverso = registro.fotoReverso.split(',')[1];
-                pdf.addImage(imgDataReverso, 'PNG', xOffset, pdfHeight - imgHeight - 10, imgWidth, imgHeight);
+                await new Promise(resolve => {
+                    recortarImagen(`data:image/png;base64,${imgDataReverso}`, cropSize, croppedImgDataReverso => {
+                        pdf.addImage(croppedImgDataReverso, 'PNG', xOffset, yOffsetBottom, imgWidth, imgHeight, undefined, 'FAST');
+                        resolve();
+                    });
+                });
 
+                // Guardar el PDF en el archivo ZIP
                 const pdfBlob = pdf.output('blob');
                 zip.file(`${registro.id}_Cedula.pdf`, pdfBlob);
             }
