@@ -164,6 +164,7 @@
                         <select name="ocupacion" id="ocupacion" class="form-select form-input" data-field="Ocupación"
                             required>
                             <option value="Aprendiz">Aprendiz</option>
+                            <option value="Campesino">Campesino</option>
                             <option value="Docente">Docente</option>
                             <option value="Profesional">Profesional</option>
                             <option value="Idependiente">Idependiente</option>
@@ -280,9 +281,13 @@
                         <img id="overlayFrente" src="img/camara.png" class="overlay">
 
                     </div>
-                    <div class="text-center mt-2">
-                        <button type="button" class="btn btn-success" onclick="capturarFrente()">Capturar
+                    <div class="text-center mt-2 d-flex justify-content-center">
+                        <button type="button" class="btn btn-success" id="frenteCapBtn"
+                            onclick="capturarFrente()">Capturar
                             Frente</button>
+
+                        <button type="button" class="btn btn-primary" id="reintentarFrente" onclick="reintentar(true)"
+                            style="display: none;">Reintentar</button>
                     </div>
                 </div>
                 <div class="col-lg-6 form-section">
@@ -293,9 +298,13 @@
                         <img id="fotoReverso" class="rounded-4 h-full" style="display:none;" alt="Foto del Reverso">
                         <img id="overlayReverso" src="img/camara-2.png" class="overlay">
                     </div>
-                    <div class="text-center mt-2">
-                        <button type="button" class="btn btn-success" onclick="capturarReverso()">Capturar
+                    <div class="text-center mt-2 d-flex justify-content-center">
+                        <button type="button" class="btn btn-success" id="reversoCapBtn"
+                            onclick="capturarReverso()">Capturar
                             Reverso</button>
+
+                        <button type="button" class="btn btn-primary" id="reintentarReverso" onclick="reintentar(false)"
+                            style="display: none;">Reintentar</button>
                     </div>
                 </div>
             </div>
@@ -387,6 +396,11 @@
             .catch(err => console.error("Error al acceder a la cámara: ", err));
 
         function capturarFrente() {
+            const frenteCapBtn = document.getElementById('frenteCapBtn');
+            const reintentarFrente = document.getElementById('reintentarFrente');
+            frenteCapBtn.style.display = 'none'
+            reintentarFrente.style.display = 'flex'
+
             canvasFrente.width = videoFrente.videoWidth;
             canvasFrente.height = videoFrente.videoHeight;
 
@@ -399,7 +413,39 @@
             overlayFrente.style.display = 'none';
         }
 
+        function reintentar(frente) {
+            console.log('xd_ ', frente);
+            
+            if (frente == true) {
+                const frenteCapBtn = document.getElementById('frenteCapBtn');
+                const reintentarFrente = document.getElementById('reintentarFrente');
+                frenteCapBtn.style.display = 'flex'
+                reintentarFrente.style.display = 'none'
+
+                fotoFrente.removeAttribute('src');
+                fotoFrente.style.display = 'none';
+                videoFrente.style.display = 'block';
+                overlayFrente.style.display = 'block'
+            } else {
+                const reversoCapBtn = document.getElementById('reversoCapBtn');
+                const reintentarReverso = document.getElementById('reintentarReverso');
+                reversoCapBtn.style.display = 'flex'
+                reintentarReverso.style.display = 'none'
+
+                fotoReverso.removeAttribute('src');
+                fotoReverso.style.display = 'none';
+                videoReverso.style.display = 'block';
+                overlayReverso.style.display = 'block'
+            }
+        }
+
         function capturarReverso() {
+            const reversoCapBtn = document.getElementById('reversoCapBtn');
+            const reintentarReverso = document.getElementById('reintentarReverso');
+
+            reversoCapBtn.style.display = 'none'
+            reintentarReverso.style.display = 'block'
+
             canvasReverso.width = videoReverso.videoWidth;
             canvasReverso.height = videoReverso.videoHeight;
 
@@ -601,7 +647,7 @@
             // Generar PDFs
             for (const registro of registros) {
                 // console.log(registro);
-                
+
                 if (registro.fotoFrente !== '' && registro.fotoReverso !== '') {
 
                     const pdf = new jsPDF();
