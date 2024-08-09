@@ -313,8 +313,8 @@
         aria-labelledby="incompleteFieldsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="incompleteFieldsModalLabel">Campos incompletos</h5>
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="incompleteFieldsModalLabel">Cédula Faltante</h5>
                     <button type="button" class="btn-close text-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
@@ -322,10 +322,12 @@
                     <div class="modal-icon">
                         <i class="fa fa-exclamation-circle text-danger"></i>
                     </div>
-                    Por favor, capture ambas imágenes.
+                    ¿Desea guardar el registro sin le cédula?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-ligth" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                        id="confirm">Confirmar</button>
                 </div>
             </div>
         </div>
@@ -440,9 +442,7 @@
 
             // console.log('FORMULARIO:', formulario.checkValidity());
 
-            if (formulario.checkValidity() && fotoFrenteSrc && fotoReversoSrc) {
-                event.preventDefault();
-
+            const guardarResultados = () => {
                 registro.fotoFrente = fotoFrenteSrc;
                 registro.fotoReverso = fotoReversoSrc;
                 registros.push(registro);
@@ -461,6 +461,14 @@
                 videoReverso.style.display = 'block';
                 overlayFrente.style.display = 'block';
 
+            }
+
+            if (formulario.checkValidity() && fotoFrenteSrc && fotoReversoSrc) {
+                event.preventDefault();
+
+                // Guardar
+                guardarResultados()
+
                 const modal = new bootstrap.Modal(document.getElementById('saveFieldsModal'));
                 modal.show();
             } else if (formulario.checkValidity()) {
@@ -468,6 +476,13 @@
 
                 const modal = new bootstrap.Modal(document.getElementById('incompleteFieldsModal'));
                 modal.show();
+
+                const confirmBtn = document.getElementById('confirm');
+
+                confirmBtn.addEventListener('click', function () {
+                    // Guardar
+                    guardarResultados()
+                })
             }
         }
 
@@ -585,42 +600,48 @@
 
             // Generar PDFs
             for (const registro of registros) {
-                const pdf = new jsPDF();
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
+                // console.log(registro);
+                
+                if (registro.fotoFrente !== '' && registro.fotoReverso !== '') {
 
-                // Definir dimensiones realistas para las imágenes (altura y ancho)
-                const imgHeight = 120; // Ajusta la altura según sea necesario
-                const imgWidth = imgHeight * 1.5; // Proporción 1.5:1
+                    const pdf = new jsPDF();
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
 
-                // Calcular la posición horizontal para centrar la imagen
-                const xOffset = (pdfWidth - imgWidth) / 2;
+                    // Definir dimensiones realistas para las imágenes (altura y ancho)
+                    const imgHeight = 120; // Ajusta la altura según sea necesario
+                    const imgWidth = imgHeight * 1.5; // Proporción 1.5:1
 
-                // Calcular la posición vertical para que las imágenes no estén demasiado separadas
-                const yOffsetTop = 20; // Espacio superior desde el borde
-                const yOffsetBottom = pdfHeight - imgHeight - 20; // Espacio inferior desde el borde
+                    // Calcular la posición horizontal para centrar la imagen
+                    const xOffset = (pdfWidth - imgWidth) / 2;
 
-                // Recortar y añadir imagen del frente
-                const imgDataFrente = registro.fotoFrente.split(',')[1];
-                await new Promise(resolve => {
-                    recortarImagen(`data:image/png;base64,${imgDataFrente}`, cropSize, croppedImgDataFrente => {
-                        pdf.addImage(croppedImgDataFrente, 'PNG', xOffset, yOffsetTop, imgWidth, imgHeight, undefined, 'FAST');
-                        resolve();
+                    // Calcular la posición vertical para que las imágenes no estén demasiado separadas
+                    const yOffsetTop = 20; // Espacio superior desde el borde
+                    const yOffsetBottom = pdfHeight - imgHeight - 20; // Espacio inferior desde el borde
+
+                    // Recortar y añadir imagen del frente
+                    const imgDataFrente = registro.fotoFrente.split(',')[1];
+                    await new Promise(resolve => {
+                        recortarImagen(`data:image/png;base64,${imgDataFrente}`, cropSize, croppedImgDataFrente => {
+                            pdf.addImage(croppedImgDataFrente, 'PNG', xOffset, yOffsetTop, imgWidth, imgHeight, undefined, 'FAST');
+                            resolve();
+                        });
                     });
-                });
 
-                // Recortar y añadir imagen del reverso
-                const imgDataReverso = registro.fotoReverso.split(',')[1];
-                await new Promise(resolve => {
-                    recortarImagen(`data:image/png;base64,${imgDataReverso}`, cropSize, croppedImgDataReverso => {
-                        pdf.addImage(croppedImgDataReverso, 'PNG', xOffset, yOffsetBottom, imgWidth, imgHeight, undefined, 'FAST');
-                        resolve();
+                    // Recortar y añadir imagen del reverso
+                    const imgDataReverso = registro.fotoReverso.split(',')[1];
+                    await new Promise(resolve => {
+                        recortarImagen(`data:image/png;base64,${imgDataReverso}`, cropSize, croppedImgDataReverso => {
+                            pdf.addImage(croppedImgDataReverso, 'PNG', xOffset, yOffsetBottom, imgWidth, imgHeight, undefined, 'FAST');
+                            resolve();
+                        });
                     });
-                });
 
-                // Guardar el PDF en el archivo ZIP
-                const pdfBlob = pdf.output('blob');
-                zip.file(`${registro.id}_Cedula.pdf`, pdfBlob);
+                    // Guardar el PDF en el archivo ZIP
+                    const pdfBlob = pdf.output('blob');
+                    zip.file(`${registro.id}_Cedula.pdf`, pdfBlob);
+                }
+
             }
 
             // Generar y descargar ZIP
