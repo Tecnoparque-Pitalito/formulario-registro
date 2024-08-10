@@ -368,16 +368,109 @@
 
 
     <script>
+        let db;
+        let registros = []; // Aquí se almacenarán los registros una vez cargados
+
+        // Abrir la base de datos
+        function abrirBaseDeDatos() {
+            return new Promise((resolve, reject) => {
+                let request = indexedDB.open('MiBaseDeDatos', 1);
+
+                request.onerror = function (event) {
+                    console.error('Error al abrir la base de datos:', event.target.errorCode);
+                    reject(event.target.errorCode);
+                };
+
+                request.onsuccess = function (event) {
+                    db = event.target.result;
+                    console.log('Base de datos abierta exitosamente');
+                    resolve(db);
+                };
+
+                request.onupgradeneeded = function (event) {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains('registros')) {
+                        db.createObjectStore('registros', { keyPath: 'id', autoIncrement: true });
+                    }
+                    console.log('Almacén de objetos creado exitosamente');
+                };
+            });
+        }
+
+        // Cargar registros de IndexedDB
         function cargarRegistros() {
-            const registros = localStorage.getItem('registros');
-            return registros ? JSON.parse(registros) : [];
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject('Base de datos no inicializada');
+                    return;
+                }
+                let transaction = db.transaction(['registros'], 'readonly');
+                let objectStore = transaction.objectStore('registros');
+                let registrosLocal = [];
+
+                objectStore.openCursor().onsuccess = function (event) {
+                    let cursor = event.target.result;
+                    if (cursor) {
+                        registrosLocal.push(cursor.value);
+                        cursor.continue();
+                    } else {
+                        resolve(registrosLocal);
+                    }
+                };
+
+                transaction.onerror = function (event) {
+                    console.error('Error al cargar registros:', event.target.errorCode);
+                    reject([]);
+                };
+            });
         }
 
-        function guardarRegistros(registros) {
-            localStorage.setItem('registros', JSON.stringify(registros));
+        // Guardar nuevos registros en IndexedDB
+        function guardarRegistros(nuevosRegistros) {
+            if (!db) {
+                console.error('Base de datos no inicializada');
+                return;
+            }
+
+            let transaction = db.transaction(['registros'], 'readwrite');
+            let objectStore = transaction.objectStore('registros');
+
+            nuevosRegistros.forEach(function (registro) {
+                objectStore.put(registro); // Cambiado de add a put para manejar actualizaciones
+            });
+
+            transaction.onerror = function (event) {
+                console.error('Error al guardar registros:', event.target.errorCode);
+            };
+
+            transaction.oncomplete = function (event) {
+                console.log('Registros guardados exitosamente');
+                // Actualizar la variable global `registros` después de guardar
+                cargarRegistros().then((data) => {
+                    registros = data;
+                }).catch(error => console.error('Error al actualizar registros:', error));
+            };
         }
 
-        let registros = cargarRegistros();
+        // Inicializar la aplicación
+        function inicializarApp() {
+            abrirBaseDeDatos().then(() => {
+                return cargarRegistros();
+            }).then((data) => {
+                registros = data; // Asigna los registros cargados a la variable
+                console.log('Registros cargados:', registros);
+            }).catch(error => {
+                console.error('Error al iniciar la aplicación:', error);
+            });
+        }
+
+        // Llamar a la función de inicialización al cargar la página
+        inicializarApp();
+
+
+
+
+        // let registros = cargarRegistros();
 
         const videoFrente = document.getElementById('videoFrente');
         const videoReverso = document.getElementById('videoReverso');
@@ -415,7 +508,7 @@
 
         function reintentar(frente) {
             console.log('xd_ ', frente);
-            
+
             if (frente == true) {
                 const frenteCapBtn = document.getElementById('frenteCapBtn');
                 const reintentarFrente = document.getElementById('reintentarFrente');
@@ -489,10 +582,24 @@
             // console.log('FORMULARIO:', formulario.checkValidity());
 
             const guardarResultados = () => {
+                const frenteCapBtn = document.getElementById('frenteCapBtn');
+                const reintentarFrente = document.getElementById('reintentarFrente');
+                frenteCapBtn.style.display = 'flex'
+                reintentarFrente.style.display = 'none'
+
+                const reversoCapBtn = document.getElementById('reversoCapBtn');
+                const reintentarReverso = document.getElementById('reintentarReverso');
+
+                reversoCapBtn.style.display = 'flex'
+                reintentarReverso.style.display = 'none'
+
+
                 registro.fotoFrente = fotoFrenteSrc;
                 registro.fotoReverso = fotoReversoSrc;
                 registros.push(registro);
                 guardarRegistros(registros);
+
+
                 // alert('Registro guardado');
                 document.getElementById('formulario').reset();
                 fotoFrente.removeAttribute('src');
@@ -533,10 +640,21 @@
         }
 
         function limpiarRegistros() {
-            localStorage.removeItem('registros');
-            registros = [];
-            alert('Registros eliminados');
+            let transaction = db.transaction(['registros'], 'readwrite');
+            let objectStore = transaction.objectStore('registros');
+
+            let request = objectStore.clear();
+
+            request.onsuccess = function (event) {
+                registros = []; // Limpiar la variable de registros
+                alert('Registros eliminados');
+            };
+
+            request.onerror = function (event) {
+                console.error('Error al limpiar registros:', event.target.errorCode);
+            };
         }
+
 
         function recortarImagen(dataUrl, cropX, cropY, cropWidth, cropHeight, callback) {
             const img = new Image();
